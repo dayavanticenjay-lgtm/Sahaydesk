@@ -1,0 +1,21 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "npx prisma migrate deploy && npm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# This file configures the default ("web") service. The IMAP inbound-email
+# worker needs a second Railway service pointing at the same repo, with its
+# Start Command overridden (in the Railway dashboard, under that service's
+# Settings) to:
+#
+#   npm run imap:poll
+#
+# Both services build from the same Dockerfile/image and should share the
+# same DATABASE_URL and IMAP_*/MAIL_* environment variables. See README →
+# "Deployment (Railway)" for the full setup.

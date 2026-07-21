@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+
+FROM node:22-slim AS base
+WORKDIR /app
+
+# ---- deps: install full dependency tree (tsx/imapflow/mailparser are real
+# runtime deps here, needed by the IMAP worker process, not just the build) ----
+FROM base AS deps
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# ---- build: generate the Prisma client and produce the Next.js build ----
+FROM base AS build
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+
+# ---- runtime: same image serves either the web service (next start) or the
+# IMAP worker (npm run imap:poll) — override the start command per Railway
+# service; see README "Deployment (Railway)" ----
+FROM base AS runtime
+ENV NODE_ENV=production
+RUN useradd --system --create-home appuser
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY --from=build /app/src ./src
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/next.config.ts ./next.config.ts
+COPY --from=build /app/tsconfig.json ./tsconfig.json
+COPY --from=build /app/prisma.config.ts ./prisma.config.ts
+COPY --from=build /app/scripts ./scripts
+USER appuser
+
+EXPOSE 3000
+CMD ["npm", "start"]
