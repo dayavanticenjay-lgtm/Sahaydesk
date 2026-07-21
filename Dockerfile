@@ -39,4 +39,5 @@ COPY --from=build /app/scripts ./scripts
 USER appuser
 
 EXPOSE 3000
-CMD ["npm", "start"]
+# Run migrations then start the Node app directly.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
