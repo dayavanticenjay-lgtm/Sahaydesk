@@ -2,18 +2,22 @@
 
 FROM node:22-slim AS base
 WORKDIR /app
+# Prisma's schema/migration engines need libssl on Debian-slim images.
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # ---- deps: install full dependency tree (tsx/imapflow/mailparser are real
-# runtime deps here, needed by the IMAP worker process, not just the build) ----
+# runtime deps here, needed by the IMAP worker process, not just the build).
+# `npm ci` runs the `postinstall` script (`prisma generate`), which needs the
+# schema + config present, so those are copied in before installing. ----
 FROM base AS deps
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json prisma.config.ts ./
+COPY prisma ./prisma
 RUN npm ci
 
-# ---- build: generate the Prisma client and produce the Next.js build ----
+# ---- build: `npm run build` runs `prisma generate` itself before `next build` ----
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate
 RUN npm run build
 
 # ---- runtime: same image serves either the web service (next start) or the
