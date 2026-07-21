@@ -40,4 +40,4 @@ USER appuser
 
 EXPOSE 3000
 # Run migrations then start the Node app directly.
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "echo DIAG_BOOT_$(date +%s); npx prisma migrate deploy; echo DIAG_MIGRATE_EXIT=$?; npm start; echo DIAG_NPMSTART_EXIT=$?"]
