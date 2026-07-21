@@ -2,7 +2,7 @@
 
 FROM node:22-slim AS base
 WORKDIR /app
-# Prisma's schema/migration engines need libssl on Debian-slim images.
+# Prisma's schema/migration engine need libssl on Debian-slim images.
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # ---- deps: install full dependency tree (tsx/imapflow/mailparser are real

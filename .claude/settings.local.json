@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(railway whoami *)",
+      "Bash(railway status *)",
+      "Bash(node_modules/.bin/next start *)",
+      "mcp__context7__query-docs",
+      "Bash(echo \"exit:$?\")",
+      "Bash(docker --version)",
+      "Bash(docker build *)",
+      "Bash(docker network *)",
+      "Bash(docker rm *)",
+      "Bash(docker run *)",
+      "Bash(curl -sv http://localhost:3000/api/health)",
+      "Bash(curl -sv --max-time 15 https://sahaydesk-production.up.railway.app/api/health)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Read(//home/enjay/.railway/**)"
+    ]
+  }
+}
